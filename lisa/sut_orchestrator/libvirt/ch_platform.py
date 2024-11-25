@@ -7,6 +7,7 @@ import secrets
 import xml.etree.ElementTree as ET  # noqa: N817
 from pathlib import Path
 from typing import List, Type
+from packaging.version import parse
 
 from lisa import schema
 from lisa.environment import Environment
@@ -100,7 +101,18 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
         node_context = get_node_context(node)
 
         domain = ET.Element("domain")
-        domain.attrib["type"] = "ch"
+
+        libvirt_version  = self._get_libvirt_version()
+        if parse(libvirt_version) > parse("10.0.2"):
+            if self.host_node.tools[Ls].path_exists("/dev/mshv", sudo=True):
+                domain.attrib["type"] = "hyperv"
+            elif self.host_node.tools[Ls].path_exists("/dev/kvm", sudo=True):
+                domain.attrib["type"] = "kvm"
+            else:
+                raise LisaException("kvm, mshv are the only supported hypervsiors. Both are missing on the host")
+
+        else:
+            domain.attrib["type"] = "ch"
 
         name = ET.SubElement(domain, "name")
         name.text = node_context.vm_name
