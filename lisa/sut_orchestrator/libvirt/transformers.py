@@ -196,7 +196,7 @@ class CloudHypervisorInstallerTransformer(Transformer):
 class LibvirtPackageInstaller(LibvirtInstaller):
     _distro_package_mapping = {
         Ubuntu.__name__: ["libvirt-daemon-system"],
-        CBLMariner.__name__: ["dnsmasq", "ebtables", "libvirt"],
+        CBLMariner.__name__: ["dnsmasq", "libvirt-daemon", "libvirt-daemon-driver-ch", "libvirt-daemon-driver-network", "libvirt-daemon-config-network"],
     }
 
     @classmethod
@@ -552,6 +552,7 @@ def _install_libvirt(runbook: schema.TypedSchema, node: Node, log: Logger) -> No
         if isinstance(node.os, Ubuntu):
             node.execute("systemctl disable apparmor", shell=True, sudo=True)
         node.execute("systemctl enable libvirtd", shell=True, sudo=True)
+        node.execute("systemctl enable virtnetworkd", shell=True, sudo=True)
         node.reboot(time_out=900)
         if isinstance(node.os, CBLMariner):
             # After reboot, libvirtd service is in failed state and needs to
