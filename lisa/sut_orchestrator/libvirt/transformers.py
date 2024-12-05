@@ -551,9 +551,6 @@ def _install_libvirt(runbook: schema.TypedSchema, node: Node, log: Logger) -> No
 
         if isinstance(node.os, Ubuntu):
             node.execute("systemctl disable apparmor", shell=True, sudo=True)
-        node.execute("systemctl enable libvirtd", shell=True, sudo=True)
-        node.execute("systemctl enable virtnetworkd", shell=True, sudo=True)
-        node.reboot(time_out=900)
         if isinstance(node.os, CBLMariner):
             # After reboot, libvirtd service is in failed state and needs to
             # be restarted manually. Doing it immediately after restart
@@ -572,7 +569,11 @@ def _install_libvirt(runbook: schema.TypedSchema, node: Node, log: Logger) -> No
         libvirt_version = libvirt_installer._get_version()
         log.info(f"Already installed! libvirt version: {libvirt_version}")
         _fix_mariner_installation(node=node)
-        node.reboot(time_out=900)
+
+    node.execute("systemctl enable libvirtd", shell=True, sudo=True)
+    node.execute("systemctl enable virtnetworkd", shell=True, sudo=True)
+    log.info("Eanbling libvirtd and virtnetworkd services")
+    node.reboot(time_out=900)
 
 
 # Some fixes to the libvirt installation on Mariner.
