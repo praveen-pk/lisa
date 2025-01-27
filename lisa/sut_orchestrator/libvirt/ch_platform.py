@@ -150,7 +150,10 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
             reducedphysbits.text = "0"
             policy = ET.SubElement(launch_sec, "policy")
             policy.text = "0"
-            host_data = ET.SubElement(launch_sec, "host_data")
+            if parse_version(libvirt_version) >= "10.5.0":
+                host_data = ET.SubElement(launch_sec, "hostData")
+            else:
+                host_data = ET.SubElement(launch_sec, "host_data")
             host_data.text = node_context.host_data
 
         devices = ET.SubElement(domain, "devices")
