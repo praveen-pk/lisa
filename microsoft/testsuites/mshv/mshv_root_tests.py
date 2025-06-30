@@ -29,6 +29,7 @@ from lisa.tools import (
     RemoteCopy,
     Sed,
     Service,
+    Stat,
     Tar,
 )
 from lisa.util import LisaException, SkippedException, find_group_in_lines
@@ -87,7 +88,9 @@ class MshvHostTestSuite(TestSuite):
         # before checking the size of the logfile.
         time.sleep(10)
         # Check the size of mshvlog logfile
-        mshvlog_logfile_size = os.path.getsize(self.mshvlog_logfile)
+        mshvlog_logfile_size = node.tools[Stat].get_total_size(
+            self.mshvlog_logfile, sudo=True
+        )
 
         assert_that(mshvlog_logfile_size).described_as(
             "mshvlog logfile should not be empty"
