@@ -37,7 +37,7 @@ from lisa.features import (
     Synthetic,
 )
 from lisa.features.security_profile import CvmDisabled
-from lisa.tools import Cat, GrubConfig, KernelConfig, Lspci
+from lisa.tools import Cat, GrubConfig, KernelConfig, Lspci, Uname
 from lisa.util import LisaException, constants
 from lisa.util.shell import wait_tcp_port_ready
 
@@ -352,6 +352,42 @@ class Provisioning(TestSuite):
 
     @TestCaseMetadata(
         description="""
+        This case verifies a VM can be stopped and started from the platform,
+        then validates the booted kernel version is 6.18 or later.
+
+        Steps:
+        1. Stop the VM from platform.
+        2. Start the VM from platform.
+        3. Verify the VM is reachable and kernel version is >= 6.18.
+        """,
+        priority=1,
+        requirement=simple_requirement(
+            environment_status=EnvironmentStatus.Deployed,
+            supported_features=[StartStop],
+        ),
+    )
+    def verify_start_vm_kernel_min_6_18(self, log: Logger, node: RemoteNode) -> None:
+        start_stop = node.features[StartStop]
+
+        log.info("Stopping VM from platform.")
+        start_stop.stop()
+
+        log.info("Starting VM from platform.")
+        start_stop.start()
+
+        uname_result = node.tools[Uname].get_linux_information(force_run=True)
+        log.info(
+            f"Kernel version after start: {uname_result.kernel_version_raw}"
+        )
+
+        if uname_result.kernel_version < "6.18.0":
+            raise LisaException(
+                "Kernel version check failed after VM start: "
+                f"{uname_result.kernel_version_raw} is lower than required 6.18.0"
+            )
+
+    @TestCaseMetadata(
+        description="""
         This case performs a reboot stress test on the node
         and iterates smoke test 100 times.
         The test steps are almost the same as `smoke_test`.
@@ -397,7 +433,7 @@ class Provisioning(TestSuite):
         2. Reboot the system to apply the kernel parameter
         3. Run smoke test to verify system functionality
         4. Verify the system is responsive after reboot
-        
+
         TODO: This test is currently unsupported on CVM because modifying boot
         parameters in CVM requires rebuilding, which needs access to kernel image,
         modules, and initramfs all unbundled. With just UEFI image, more research
