@@ -571,6 +571,10 @@ class VhdSchema(AzureImageSchema):
     cvm_gueststate_path: Optional[str] = None
     cvm_metadata_path: Optional[str] = None
     data_vhd_paths: Optional[List[DataVhdPath]] = None
+    vmgs_path: Optional[str] = field(
+        default=None,
+        metadata=field_metadata(data_key="vmgs_path"),
+    )
 
     def load_from_platform(self, platform: "AzurePlatform") -> None:
         # There are no platform tags to parse, but we can assume the
