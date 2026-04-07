@@ -701,6 +701,9 @@ class AzureNodeSchema:
     maximize_capability: bool = False
 
     location: str = ""
+    # Hyper-V generation is part of the Azure node requirement and is also used
+    # later to populate the ARM deployment parameters.
+    hyperv_generation: int = 1
     # Required by shared gallery images which are present in
     # subscription different from where LISA is run
     subscription_id: str = ""
