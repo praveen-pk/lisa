@@ -27,6 +27,7 @@ from .nvme import Nvme, NvmeSettings
 from .password_extension import PasswordExtension
 from .resize import Resize, ResizeAction
 from .security_profile import (
+    LVBSDevEnabled,
     SecureBootEnabled,
     SecurityProfile,
     SecurityProfileSettings,
@@ -56,6 +57,7 @@ __all__ = [
     "HibernationSettings",
     "Infiniband",
     "IsolatedResource",
+    "LVBSDevEnabled",
     "NestedVirtualization",
     "Nfs",
     "Nvme",

@@ -284,6 +284,7 @@ class AzureImageSchema(schema.ImageSchema):
                 is_allow_set=True,
                 default_values=[
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -377,9 +378,17 @@ class AzureImageSchema(schema.ImageSchema):
         os_type = raw_features.get("os_type", "")
         security_profile_capabilities: List[SecurityProfileType] = []
         encrypt_capability: List[bool] = [False]
-        if security_profile in ["TrustedLaunchSupported", "TrustedLaunch"]:
+        if security_profile == "TrustedLaunchSupported":
             security_profile_capabilities.extend(
-                [SecurityProfileType.Standard, SecurityProfileType.SecureBoot]
+                [
+                    SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
+                    SecurityProfileType.SecureBoot,
+                ]
+            )
+        elif security_profile == "TrustedLaunch":
+            security_profile_capabilities.extend(
+                [SecurityProfileType.LVBS_dev, SecurityProfileType.SecureBoot]
             )
         elif (
             security_profile == "TrustedLaunchAndConfidentialVmSupported"
@@ -388,6 +397,7 @@ class AzureImageSchema(schema.ImageSchema):
             security_profile_capabilities.extend(
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -561,6 +571,10 @@ class VhdSchema(AzureImageSchema):
     cvm_gueststate_path: Optional[str] = None
     cvm_metadata_path: Optional[str] = None
     data_vhd_paths: Optional[List[DataVhdPath]] = None
+    vmgs_path: Optional[str] = field(
+        default=None,
+        metadata=field_metadata(data_key="vmgs_path"),
+    )
 
     def load_from_platform(self, platform: "AzurePlatform") -> None:
         # There are no platform tags to parse, but we can assume the
@@ -572,6 +586,7 @@ class VhdSchema(AzureImageSchema):
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
                     SecurityProfileType.SecureBoot,
+                    SecurityProfileType.LVBS_dev,
                 ],
             )
             self.encrypt_disk = search_space.SetSpace(True, [True, False])
@@ -580,6 +595,7 @@ class VhdSchema(AzureImageSchema):
                 True,
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                 ],
             )
@@ -689,6 +705,9 @@ class AzureNodeSchema:
     maximize_capability: bool = False
 
     location: str = ""
+    # Hyper-V generation is part of the Azure node requirement and is also used
+    # later to populate the ARM deployment parameters.
+    hyperv_generation: int = 1
     # Required by shared gallery images which are present in
     # subscription different from where LISA is run
     subscription_id: str = ""

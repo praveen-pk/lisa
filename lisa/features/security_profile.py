@@ -16,6 +16,7 @@ FEATURE_NAME_SECURITY_PROFILE = "Security_Profile"
 
 class SecurityProfileType(str, Enum):
     Standard = constants.SECURITY_PROFILE_NONE
+    LVBS_dev = constants.SECURITY_PROFILE_LVBS_DEV
     CVM = constants.SECURITY_PROFILE_CVM
     Stateless = constants.SECURITY_PROFILE_STATELESS
     SecureBoot = constants.SECURITY_PROFILE_BOOT
@@ -23,6 +24,7 @@ class SecurityProfileType(str, Enum):
 
 security_profile_priority: List[SecurityProfileType] = [
     SecurityProfileType.Standard,
+    SecurityProfileType.LVBS_dev,
     SecurityProfileType.SecureBoot,
     SecurityProfileType.CVM,
     SecurityProfileType.Stateless,
@@ -42,6 +44,7 @@ class SecurityProfileSettings(schema.FeatureSettings):
             search_space.SetSpace,
             items=[
                 SecurityProfileType.Standard,
+                SecurityProfileType.LVBS_dev,
                 SecurityProfileType.SecureBoot,
                 SecurityProfileType.CVM,
                 SecurityProfileType.Stateless,
@@ -53,6 +56,7 @@ class SecurityProfileSettings(schema.FeatureSettings):
                 base_type=SecurityProfileType,
                 default_values=[
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -140,6 +144,12 @@ class SecurityProfile(Feature):
         return True
 
 
+LVBSDevEnabled = partial(
+    SecurityProfileSettings,
+    security_profile=search_space.SetSpace(True, [SecurityProfileType.LVBS_dev]),
+    encrypt_disk=search_space.SetSpace(True, [False]),
+)
+
 SecureBootEnabled = partial(
     SecurityProfileSettings,
     security_profile=search_space.SetSpace(True, [SecurityProfileType.SecureBoot]),
@@ -156,7 +166,12 @@ CvmEnabled = partial(
 CvmDisabled = partial(
     SecurityProfileSettings,
     security_profile=search_space.SetSpace(
-        True, [SecurityProfileType.Standard, SecurityProfileType.SecureBoot]
+        True,
+        [
+            SecurityProfileType.Standard,
+            SecurityProfileType.LVBS_dev,
+            SecurityProfileType.SecureBoot,
+        ],
     ),
     encrypt_disk=search_space.SetSpace(True, [False]),
 )

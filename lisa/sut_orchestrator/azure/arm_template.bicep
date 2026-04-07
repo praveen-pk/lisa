@@ -185,20 +185,20 @@ func generateOsProfile(node object, admin_username string, admin_password string
 func generateSecurityProfile(node object) object => {
   uefiSettings: {
     secureBootEnabled: node.security_profile.secure_boot
-    vTpmEnabled: true
+    vTpmEnabled: (node.security_profile.?vtpm_enabled ?? true)
   }
   securityType: node.security_profile.security_type
 }
 
-func getOsProfile(node object, admin_username string, admin_password string, admin_key_data string) object? => isCvmVhd(node) 
+func getOsProfile(node object, admin_username string, admin_password string, admin_key_data string) object? => isCvmVhd(node)
 ? null
 : generateOsProfile(node, admin_username, admin_password, admin_key_data)
 
-func getImageReference(node object) object? => isCvmVhd(node) 
+func getImageReference(node object) object? => isCvmVhd(node)
 ? null
 : generateImageReference(node)
 
-func getSecurityProfile(node object) object? => empty(node.security_profile) 
+func getSecurityProfile(node object) object? => empty(node.security_profile)
 ? null
 : generateSecurityProfile(node)
 
