@@ -284,6 +284,7 @@ class AzureImageSchema(schema.ImageSchema):
                 is_allow_set=True,
                 default_values=[
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -377,9 +378,17 @@ class AzureImageSchema(schema.ImageSchema):
         os_type = raw_features.get("os_type", "")
         security_profile_capabilities: List[SecurityProfileType] = []
         encrypt_capability: List[bool] = [False]
-        if security_profile in ["TrustedLaunchSupported", "TrustedLaunch"]:
+        if security_profile == "TrustedLaunchSupported":
             security_profile_capabilities.extend(
-                [SecurityProfileType.Standard, SecurityProfileType.SecureBoot]
+                [
+                    SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
+                    SecurityProfileType.SecureBoot,
+                ]
+            )
+        elif security_profile == "TrustedLaunch":
+            security_profile_capabilities.extend(
+                [SecurityProfileType.LVBS_dev, SecurityProfileType.SecureBoot]
             )
         elif (
             security_profile == "TrustedLaunchAndConfidentialVmSupported"
@@ -388,6 +397,7 @@ class AzureImageSchema(schema.ImageSchema):
             security_profile_capabilities.extend(
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -572,6 +582,7 @@ class VhdSchema(AzureImageSchema):
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
                     SecurityProfileType.SecureBoot,
+                    SecurityProfileType.LVBS_dev,
                 ],
             )
             self.encrypt_disk = search_space.SetSpace(True, [True, False])
@@ -580,6 +591,7 @@ class VhdSchema(AzureImageSchema):
                 True,
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LVBS_dev,
                     SecurityProfileType.SecureBoot,
                 ],
             )

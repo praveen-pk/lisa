@@ -114,6 +114,7 @@ AVAILABILITY_SET = "availability_set"
 AVAILABILITY_ZONE = "availability_zone"
 
 SECURITY_PROFILE_NONE = "none"
+SECURITY_PROFILE_LVBS_DEV = "lvbs_dev"
 SECURITY_PROFILE_BOOT = "secureboot"
 SECURITY_PROFILE_CVM = "cvm"
 SECURITY_PROFILE_STATELESS = "stateless"

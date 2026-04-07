@@ -2723,6 +2723,7 @@ class SecurityProfile(AzureFeatureMixin, features.SecurityProfile):
                 and ("V2" in str(gen_value))
                 and raw_capabilities.get("TrustedLaunchDisabled", "False") == "False"
             ):
+                security_profile_capabilities.append(SecurityProfileType.LVBS_dev)
                 security_profile_capabilities.append(SecurityProfileType.SecureBoot)
 
         if cvm_value and cvm_value.casefold() == "snp":
@@ -2784,6 +2785,10 @@ class SecurityProfile(AzureFeatureMixin, features.SecurityProfile):
             is_vhd = bool(node_parameters.vhd)
             if SecurityProfileType.Standard == settings.security_profile:
                 node_parameters.security_profile["security_type"] = ""
+            elif SecurityProfileType.LVBS_dev == settings.security_profile:
+                node_parameters.security_profile["secure_boot"] = False
+                node_parameters.security_profile["security_type"] = "TrustedLaunch"
+                node_parameters.security_profile["encryption_type"] = "TrustedLaunch"
             elif SecurityProfileType.SecureBoot == settings.security_profile:
                 node_parameters.security_profile["secure_boot"] = True
                 node_parameters.security_profile["security_type"] = "TrustedLaunch"
