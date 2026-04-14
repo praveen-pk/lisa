@@ -1779,6 +1779,18 @@ class AzurePlatform(Platform):
         if capability.network_interface.data_path == schema.NetworkDataPath.Sriov:
             arm_parameters.enable_sriov = True
 
+        security_profile = capability._find_feature_by_type(
+            SecurityProfileSettings.type, capability.features
+        )
+        if (
+            security_profile
+            and isinstance(security_profile, SecurityProfileSettings)
+            and isinstance(security_profile.security_profile, SecurityProfileType)
+            and security_profile.security_profile.value == "lvbs_dev"
+        ):
+            # LVBS profile requires synthetic networking.
+            arm_parameters.enable_sriov = False
+
         return arm_parameters
 
     @retry(exceptions=ResourceNotFoundError, tries=5, delay=2)  # type: ignore
