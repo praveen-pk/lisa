@@ -284,6 +284,7 @@ class AzureImageSchema(schema.ImageSchema):
                 is_allow_set=True,
                 default_values=[
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LvbsProdUnsigned,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -379,7 +380,11 @@ class AzureImageSchema(schema.ImageSchema):
         encrypt_capability: List[bool] = [False]
         if security_profile in ["TrustedLaunchSupported", "TrustedLaunch"]:
             security_profile_capabilities.extend(
-                [SecurityProfileType.Standard, SecurityProfileType.SecureBoot]
+                [
+                    SecurityProfileType.Standard,
+                    SecurityProfileType.LvbsProdUnsigned,
+                    SecurityProfileType.SecureBoot,
+                ]
             )
         elif (
             security_profile == "TrustedLaunchAndConfidentialVmSupported"
@@ -388,6 +393,7 @@ class AzureImageSchema(schema.ImageSchema):
             security_profile_capabilities.extend(
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LvbsProdUnsigned,
                     SecurityProfileType.SecureBoot,
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
@@ -571,6 +577,7 @@ class VhdSchema(AzureImageSchema):
                 [
                     SecurityProfileType.CVM,
                     SecurityProfileType.Stateless,
+                    SecurityProfileType.LvbsProdUnsigned,
                     SecurityProfileType.SecureBoot,
                 ],
             )
@@ -580,6 +587,7 @@ class VhdSchema(AzureImageSchema):
                 True,
                 [
                     SecurityProfileType.Standard,
+                    SecurityProfileType.LvbsProdUnsigned,
                     SecurityProfileType.SecureBoot,
                 ],
             )
